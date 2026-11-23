@@ -241,73 +241,113 @@ Một số giả thuyết cần xem xét:
 
 F1-score giống nhau không nhất thiết có nghĩa các file VCF dự đoán hoàn toàn giống nhau.
 
-## 7. Hướng dẫn chạy chương trình
+## 7. Hướng dẫn cài đặt và chạy trên WSL2/Docker
 
-### 7.1. Yêu cầu
+### 7.1. Yêu cầu hệ thống
 
-- Tài khoản Google.
-- Google Colab.
-- Google Drive có dung lượng trống phù hợp.
-- GPU T4 nếu được cấp phát.
+- Windows 10/11 hỗ trợ WSL2.
+- Ubuntu chạy trong WSL2.
+- Docker Desktop với WSL2 integration đã được bật.
+- Git, curl và Python 3.
+- Các thư viện Python: pandas, matplotlib.
+- Có kết nối Internet để tải dữ liệu và Docker images.
 
-### 7.2. Mở notebook
+### 7.2. Tạo thư mục dự án
 
-Truy cập:
+Mở terminal Ubuntu WSL2:
 
-https://colab.research.google.com/
+```bash
+cd ~
+mkdir -p clair3_reproduce
+cd ~/clair3_reproduce
+mkdir -p data results logs scripts
+```
 
-Mở notebook:
+Nếu tải project từ GitHub:
 
-`notebooks/Clair3_HG003_Colab.ipynb`
+```bash
+cd ~
+git clone https://github.com/nguyenthanhanton/clair3-hg003-variant-calling.git
+cd clair3-hg003-variant-calling
+```
 
-### 7.3. Cấu hình môi trường
+Các script hiện tại sử dụng đường dẫn `~/clair3_reproduce`, do đó khi clone cần đổi tên thư mục thành `clair3_reproduce` hoặc điều chỉnh biến `BASE` trong các script.
 
-Trong Google Colab:
+### 7.3. Tải dữ liệu ONT HG003 chr20
 
-1. Chọn Runtime.
-2. Chọn Change runtime type.
-3. Chọn GPU T4 nếu có.
-4. Kết nối Google Drive.
-5. Chạy các cell cài đặt môi trường.
+```bash
+bash scripts/download_data.sh
+```
 
-### 7.4. Quy trình thực thi
+Dữ liệu sẽ được lưu tại `data/`, bao gồm BAM, BAM index, reference FASTA, GIAB truth VCF và confident BED.
 
-Thực hiện các bước theo thứ tự:
+### 7.4. Chạy bốn thí nghiệm Clair3
 
-1. Cài đặt Clair3 và các thư viện phụ thuộc.
-2. Tải và kiểm tra dữ liệu ONT HG003.
-3. Chuẩn bị bộ gen tham chiếu GRCh38.
-4. Chia dữ liệu thành train, validation và test.
-5. Chạy Clair3 pretrained baseline.
-6. Tạo training labels và tensors.
-7. Fine-tuning mô hình với cấu hình E1.
-8. Fine-tuning mô hình với cấu hình E2.
-9. Chạy inference cho các mô hình.
-10. Đánh giá SNP/Indel bằng hap.py.
-11. Tổng hợp metric, biểu đồ và kết quả thực nghiệm.
+```bash
+bash scripts/run_experiments.sh
+```
 
-### 7.5. Lưu kết quả
-
-Dữ liệu và kết quả được lưu trong Google Drive:
-
-`MyDrive/Clair3_HG003_Chr20/`
-
-Các thư mục và file quan trọng:
-
-| Đường dẫn | Nội dung |
+| Thí nghiệm | Cấu hình |
 |---|---|
-| `data/` | BAM, reference, truth VCF, BED |
-| `checkpoints/E1/` | Checkpoint thí nghiệm E1 |
-| `checkpoints/E2/` | Checkpoint thí nghiệm E2 |
-| `results/baseline/` | VCF và kết quả baseline |
-| `results/E1/` | VCF và kết quả E1 |
-| `results/E2/` | VCF và kết quả E2 |
-| `logs/` | Log quá trình thực thi |
-| `reports/metrics.csv` | Bảng chỉ số đánh giá |
-| `reports/comparison_f1.png` | Biểu đồ F1-score |
-| `reports/training_loss.png` | Biểu đồ training loss |
-| `reports/manifest.json` | Thông tin phục vụ tái lập |
+| E0 | Pileup-only |
+| E1 | Clair3 mặc định |
+| E2 | Tăng `--var_pct_full=0.9` |
+| E3 | Giảm `--indel_min_af=0.10` |
 
+Kết quả dự đoán được lưu tại:
+
+```text
+results/
+├── E0_pileup/
+├── E1_default/
+├── E2_full90/
+└── E3_indel10/
+```
+
+### 7.5. Đánh giá bằng hap.py
+
+```bash
+bash scripts/evaluate.sh
+```
+
+Script sử dụng GIAB HG003 truth VCF, confident BED và RTG vcfeval để đánh giá SNP/Indel.
+
+### 7.6. Tổng hợp kết quả
+
+```bash
+python3 -m pip install pandas matplotlib
+python3 scripts/summarize.py
+python3 scripts/plot_results.py
+```
+
+Nếu Ubuntu không cho phép cài thư viện vào Python hệ thống, hãy tạo virtual environment rồi cài các thư viện bên trong.
+
+Các kết quả tổng hợp gồm:
+
+```text
+results/comparison.csv
+results/f1_comparison.png
+results/runtime_comparison.png
+```
+
+### 7.7. Log thực nghiệm
+
+Thời gian chạy và log chi tiết được lưu trong `logs/`.
+
+```bash
+cat logs/E0_time.txt
+cat logs/E1_time.txt
+cat logs/E2_time.txt
+cat logs/E3_time.txt
+```
+
+Thư mục log không chứa sẵn các log thực thi khi clone repository; chúng được tạo khi chạy các script.
+
+### 7.8. Phạm vi thực nghiệm
+
+Repository này khảo sát ảnh hưởng của các cấu hình inference Clair3 đến Precision, Recall, F1-score và thời gian chạy.
+
+Các thí nghiệm E0–E3 không thực hiện fine-tuning trọng số mạng. Phần fine-tuning trên Google Colab là một nhóm thực nghiệm riêng và chỉ được xem là có thể tái lập từ repository nếu mã huấn luyện và cấu hình tương ứng được bổ sung.
 ## 8. Cấu trúc Repository
 
 ```text
