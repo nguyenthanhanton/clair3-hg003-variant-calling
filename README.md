@@ -90,15 +90,12 @@ Quá trình fine-tuning sử dụng mục tiêu huấn luyện gốc của Clair
 
 Công thức tổng quát của Focal Loss:
 
-\[
-FL(p_t)=-\alpha_t(1-p_t)^\gamma\log(p_t)
-\]
+<img width="270" height="38" alt="image" src="https://github.com/user-attachments/assets/504ed173-6da9-45c6-988b-27dc5c012198" />
+
 
 Trong đó:
 
-- \(p_t\): Xác suất mô hình dự đoán cho lớp đúng.
-- \(\alpha_t\): Hệ số cân bằng giữa các lớp.
-- \(\gamma\): Tham số điều chỉnh mức độ tập trung vào các mẫu khó.
+<img width="471" height="167" alt="image" src="https://github.com/user-attachments/assets/e2d039df-d8ab-4361-a2e5-3626bd2f57b7" />
 
 Focal Loss giúp giảm ảnh hưởng của những mẫu dễ và tập trung quá trình học vào các mẫu khó phân loại.
 
@@ -354,16 +351,17 @@ Các thí nghiệm E0–E3 không thực hiện fine-tuning trọng số mạng.
 Clair3-ONT-HG003/
 ├── README.md
 ├── .gitignore
-├── notebooks/
-│   └── Clair3_HG003_Colab.ipynb
+├── Scrpit/
+│
+│── Data/
+│
 ├── configs/
 │   └── experiments.json
 ├── results/
 │   ├── metrics.csv
 │   ├── comparison_f1.png
 │   └── training_loss.png
-└── docs/
-    └── report.pdf
+
 ```
 
 Các file dữ liệu giải trình tự lớn và checkpoint mô hình được lưu bên ngoài GitHub để giảm kích thước repository.
