@@ -1,5 +1,4 @@
 # Sequencing data
-data/
 *.bam
 *.bai
 *.cram
@@ -20,7 +19,6 @@ data/
 *.hdf5
 
 # Runtime logs and temporary files
-logs/
 tmp/
 __pycache__/
 .ipynb_checkpoints/
@@ -29,3 +27,19 @@ __pycache__/
 # Environments
 .venv/
 .env
+
+# Large sequencing files
+data/*
+!data/.gitkeep
+
+# Runtime logs
+logs/*
+!logs/.gitkeep
+
+# Large sequencing files
+data/*
+!data/.gitkeep
+
+# Runtime logs
+logs/*
+!logs/.gitkeep
