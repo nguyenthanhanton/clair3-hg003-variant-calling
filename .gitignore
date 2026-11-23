@@ -1,0 +1,31 @@
+# Sequencing data
+data/
+*.bam
+*.bai
+*.cram
+*.crai
+*.fastq
+*.fasta
+*.fa
+*.fai
+*.vcf
+*.vcf.gz
+*.tbi
+
+# Model checkpoints and training tensors
+*.pt
+*.pth
+*.ckpt
+*.h5
+*.hdf5
+
+# Runtime logs and temporary files
+logs/
+tmp/
+__pycache__/
+.ipynb_checkpoints/
+*.log
+
+# Environments
+.venv/
+.env
